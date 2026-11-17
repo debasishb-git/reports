@@ -36,7 +36,7 @@ h1,h2,h3{text-wrap:balance}
 header.top{background:var(--navy);color:#fff;padding:22px 32px 0}
 .mast{max-width:1500px;margin:0 auto;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between}
 .brand{display:flex;gap:14px;align-items:center}
-.brand-mark{border:0;cursor:pointer;width:42px;height:42px;border-radius:8px;background:linear-gradient(135deg,#2c77cf,#1d5fae);display:grid;place-items:center;font:600 15px/1 var(--f-display);letter-spacing:.04em;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.brand-mark{border:0;cursor:pointer;text-decoration:none;width:42px;height:42px;border-radius:8px;background:linear-gradient(135deg,#2c77cf,#1d5fae);display:grid;place-items:center;font:600 15px/1 var(--f-display);letter-spacing:.04em;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
 .eyebrow{font:600 11px/1.2 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:#9fb6d3}
 header.top h1{margin:3px 0 0;font:600 26px/1.15 var(--f-display);letter-spacing:-.005em;color:#fff}
 .meta{max-width:1500px;margin:18px auto 0;display:flex;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.12)}
@@ -55,6 +55,7 @@ header.top .btn:disabled{opacity:.45}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.small{padding:4px 10px;font-size:12px}
 .btn:disabled{opacity:.5;cursor:default}
+a.btn{text-decoration:none}
 .btn svg{width:14px;height:14px;flex:none}
 .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 
@@ -205,14 +206,15 @@ footer.foot{max-width:1500px;margin:0 auto;padding:16px 32px 32px;display:flex;j
 <header class="top">
   <div class="mast">
     <div class="brand">
-      <button class="brand-mark" id="brandHome" type="button" title="Home" aria-label="Home">CE</button>
+      <a class="brand-mark" id="brandHome" href="index.html" title="Home" aria-label="Home">CE</a>
       <div>
         <div class="eyebrow">Academic Operations · MIS Report</div>
         <h1>Class Execution Dashboard</h1>
       </div>
     </div>
     <div class="actions">
-      <button class="btn" id="homeBtn" disabled title="Go back to the upload page"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 7.5 8 2.5l6 5M3.5 6.5V13.5h3.5v-4h2v4h3.5V6.5"/></svg>Home</button>
+      <button class="btn" id="backBtn" type="button" title="Go back to the previous page"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Back</button>
+      <a class="btn" id="homeBtn" href="index.html" title="Go to the home page (index.html)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 7.5 8 2.5l6 5M3.5 6.5V13.5h3.5v-4h2v4h3.5V6.5"/></svg>Home</a>
       <input type="file" id="fileIn" accept=".xlsx,.xls,.csv" hidden>
       <button class="btn primary" id="uploadBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 11V2M4.5 5.5 8 2l3.5 3.5M2.5 11v2.5h11V11"/></svg>Upload raw Excel</button>
       <button class="btn" id="exportBtn" disabled title="Export the filtered summaries and class records"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 2v9M4.5 7.5 8 11l3.5-3.5M2.5 11v2.5h11V11"/></svg>Export filtered (.xlsx)</button>
@@ -469,7 +471,7 @@ function loadData(rows,title,file){
   $("#footSrc").textContent=`Source: ${file}${title?" · "+title:""}`;
   $("#footGen").textContent=`Generated ${gen}`;
   $("#dropZone").style.display="none"; $("#report").style.display=""; $("#errMsg").textContent="";
-  $("#exportBtn").disabled=false; $("#printBtn").disabled=false; $("#homeBtn").disabled=false;
+  $("#exportBtn").disabled=false; $("#printBtn").disabled=false;
   renderLegend(); buildCdrTable(); refresh();
 }
 function readFile(file){
@@ -811,17 +813,7 @@ $("#printBtn").addEventListener("click",()=>window.print());
 
 
 /* ---------------- Boot ---------------- */
-function goHome(){
-  ROWS=[]; FILTERED=[]; META={title:"",file:""};
-  for(const k in FILTERS) FILTERS[k].clear(); for(const k in centerRange) delete centerRange[k];
-  gFrom=gTo=""; Object.values(charts).forEach(c=>c&&c.destroy()); for(const k in charts) delete charts[k];
-  $("#srcInfo").innerHTML='<div><dt>Status</dt><dd>No data loaded</dd></div>';
-  $("#footSrc").textContent="Class Execution Report"; $("#footGen").textContent=""; $("#errMsg").textContent="";
-  showEmpty(); window.scrollTo(0,0); toast("Back to the upload page");
-}
-$("#homeBtn").addEventListener("click",goHome);
-$("#brandHome").addEventListener("click",()=>{ if(ROWS.length) goHome(); });
-function showEmpty(){ $("#homeBtn").disabled=true; $("#dropZone").style.display=""; $("#report").style.display="none"; $("#exportBtn").disabled=true; $("#printBtn").disabled=true; }
+function showEmpty(){ $("#dropZone").style.display=""; $("#report").style.display="none"; $("#exportBtn").disabled=true; $("#printBtn").disabled=true; }
 function boot(){ if(typeof XLSX==="undefined"||typeof Chart==="undefined"){ setTimeout(boot,100); return; } showEmpty(); }
 boot();
 })();
