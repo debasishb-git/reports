@@ -1,74 +1,212 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 <meta name="color-scheme" content="light">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Batch attendance dashboard</title>
+<title>Batch Attendance Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:light;--bg:#fff;--sf:#fff;--tint:#f4f6fa;--tx:#111827;--mu:#4b5563;--ln:#d6dbe4;--pr:#0f766e;--ab:#d9d4e4;--hi:#0f766e;--md:#b45309;--lo:#b91c1c;--ac:#1f3a6e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 'IBM Plex Sans',system-ui,sans-serif}
-main{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
-h1{font-size:22px;margin:0 0 2px;font-weight:600}h2{font-size:16px;margin:0 0 10px;font-weight:600}
-.sub{color:var(--mu);margin:0 0 18px}
-.kpis{display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:12px;margin-bottom:18px}
-.k{background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:12px 14px}
-.k b{display:block;font-size:26px;font-weight:600;line-height:1.2}.k span{color:var(--mu);font-size:12.5px}
-.k.main b{font-size:40px;color:var(--pr)}
-.bar{height:8px;border-radius:4px;background:var(--ab);overflow:hidden;min-width:70px}.bar i{display:block;height:100%;background:var(--pr)}
-.panel{background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:14px;margin-bottom:18px}
-.tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center}
-select,input{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--ln);border-radius:6px;padding:6px 9px}
+/* Layout idea: same suite look as the Class Execution Dashboard: navy masthead with meta strip, data-source card, collapsible report cards on a cool-grey canvas. */
+:root{
+  color-scheme:light;
+  --navy:#0f2a4a;--navy-2:#173a63;--ink:#16202e;
+  --bg:#f3f5f8;--sf:#ffffff;--tint:#f6f8fb;--grid:#edf0f4;
+  --tx:#16202e;--mu:#5a677c;--mu2:#7b879a;--ln:#e1e6ed;--ln2:#c6cfdb;
+  --ac:#1d5fae;--acs:#e8f0fa;
+  --pr:#1d5fae;--ab:#dfe5ee;
+  --hi:#14713f;--md:#9a5b00;--lo:#a92b2b;
+  --hi-b:#1e9e5a;--md-b:#e0a526;--lo-b:#c93a3a;
+  --f-display:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --radius:10px;--shadow:0 1px 2px rgba(15,42,74,.06),0 1px 3px rgba(15,42,74,.05);
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--tx);font:14px/1.5 var(--f-body);-webkit-font-smoothing:antialiased}
+h1,h2{text-wrap:balance}
 :focus-visible{outline:2px solid var(--ac);outline-offset:2px}
-.wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:640px}
-th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--ln);vertical-align:middle}
-th{font-weight:500;color:var(--mu);font-size:12.5px;white-space:nowrap;cursor:pointer;user-select:none}
-td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
-tr.row{cursor:pointer}tr.row:hover td{background:color-mix(in srgb,var(--ac) 7%,transparent)}
-tr.sel td{background:color-mix(in srgb,var(--ac) 12%,transparent)}
-.rate{display:flex;align-items:center;gap:8px;min-width:150px}.rate .bar{flex:1}.rate em{font-style:normal;width:46px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* Masthead */
+header.top{background:var(--navy);color:#fff;padding:22px 32px 0;padding-top:calc(22px + env(safe-area-inset-top,0px))}
+.mast{max-width:1500px;margin:0 auto;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between}
+.brand{display:flex;gap:14px;align-items:center}
+.brand-mark{width:42px;height:42px;border-radius:8px;background:linear-gradient(135deg,#2c77cf,#1d5fae);display:grid;place-items:center;font:600 15px/1 var(--f-display);letter-spacing:.04em;color:#fff;text-decoration:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.eyebrow{font:600 11px/1.2 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:#9fb6d3}
+header.top h1{margin:3px 0 0;font:600 26px/1.15 var(--f-display);color:#fff}
+.hactions{display:flex;gap:8px;flex-wrap:wrap}
+.hbtn{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:7px;font:500 13px/1.2 var(--f-body);color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25);text-decoration:none;cursor:pointer;white-space:nowrap}
+.hbtn:hover{background:rgba(255,255,255,.16)}
+.hbtn:disabled{opacity:.45;cursor:default}
+.hbtn svg{width:14px;height:14px}
+.meta{max-width:1500px;margin:18px auto 0;display:flex;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.12);padding:0}
+.meta > div{padding:10px 22px 12px 0;margin-right:22px;border-right:1px solid rgba(255,255,255,.12)}
+.meta > div:last-child{border-right:0}
+.meta dt{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#8ea6c6}
+.meta dd{margin:2px 0 0;font-size:13px;font-weight:500;color:#fff;font-variant-numeric:tabular-nums}
+
+main{max-width:1564px;margin:0 auto;padding:22px 32px 40px}
+.sub{color:var(--mu);margin:0 0 16px;font-size:13px;max-width:110ch}
+
+/* Section group labels */
+.sec-label{display:flex;align-items:center;gap:12px;margin:24px 0 12px;font:600 12px/1 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
+.sec-label::after{content:"";flex:1;height:1px;background:var(--ln2)}
+.sec-label .n{font-family:var(--f-mono);color:var(--ac);letter-spacing:0}
+
+/* Cards */
+.panel{background:var(--sf);border:1px solid var(--ln);border-radius:var(--radius);padding:16px 20px;margin-bottom:16px;box-shadow:var(--shadow)}
+h2{font:600 15.5px/1.3 var(--f-body);margin:0 0 10px;color:var(--ink)}
+.sh{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}.sh h2{margin:0;flex:1 1 240px}
+.sh.dh{margin-bottom:0}
+.sbody{margin-top:14px;padding-top:14px;border-top:1px solid var(--grid)}.sbody[hidden]{display:none}
+.tg::before{content:'▸ '}.tg[aria-expanded="true"]::before{content:'▾ '}
+#bc,#thc,#suc{max-height:560px;overflow:auto;padding-right:6px}
+.tag{font-size:12px;color:var(--mu2)}.mu{color:var(--mu)}
+
+/* Upload / data source */
+#up h2{margin-bottom:4px}
+#up .tools{margin:12px 0 10px}
+#up input[type=file]{padding:6px;border:1px dashed var(--ln2);background:var(--tint);border-radius:7px;max-width:100%}
+#up input[type=file]::file-selector-button{font:600 13px var(--f-body);color:#fff;background:var(--ac);border:0;border-radius:6px;padding:7px 12px;margin-right:10px;cursor:pointer}
+#up label{color:var(--mu);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
+.up.drag,#up.drag{outline:2px dashed var(--ac);outline-offset:-6px;background:var(--acs)}
+#st{padding:8px 12px;border-radius:7px;background:var(--tint);border:1px solid var(--ln)}
+body.empty .notes{max-width:980px;margin:0 auto 24px}
+body.empty #up{max-width:980px;margin:28px auto;padding:32px 36px;text-align:center}
+body.empty #up .tools{justify-content:center}
+body.empty #up h2{font:600 20px/1.3 var(--f-display)}
+
+/* Controls */
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center}
+select,input{font:inherit;font-size:13px;color:var(--tx);background:var(--sf);border:1px solid var(--ln2);border-radius:7px;padding:6px 9px}
+select{cursor:pointer}
+input[type=date]{font-family:var(--f-mono);font-size:12.5px}
+.ab{font:500 12.5px/1.2 var(--f-body);color:var(--ac);background:var(--sf);border:1px solid #b9cde6;border-radius:7px;padding:5px 10px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
+.ab:hover{background:var(--acs);border-color:var(--ac)}
+
+/* Filters */
+#fp{position:sticky;top:0;z-index:15;background:rgba(255,255,255,.97);backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(15,42,74,.07);padding:12px 16px}
+#fp .tools{margin:0}
+.ms{position:relative}
+.ms summary{list-style:none;cursor:pointer;border:1px solid var(--ln2);border-radius:7px;padding:7px 28px 7px 10px;background:var(--sf);min-width:210px;font-size:13px;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+.ms summary:hover{border-color:var(--mu2)}
+.ms summary::-webkit-details-marker{display:none}
+.ms summary::after{content:"";position:absolute;right:11px;top:50%;width:6px;height:6px;border-right:1.5px solid var(--mu);border-bottom:1.5px solid var(--mu);transform:translateY(-70%) rotate(45deg)}
+.mp{position:absolute;z-index:20;top:calc(100% + 4px);left:0;width:min(330px,86vw);background:var(--sf);border:1px solid var(--ln2);border-radius:10px;padding:10px;box-shadow:0 14px 34px rgba(15,42,74,.18)}
+.mp input[type=search]{width:100%;margin-bottom:8px}.mf{display:flex;gap:6px;margin-bottom:6px}
+.ml{max-height:260px;overflow:auto}.ml label{display:flex;gap:8px;padding:4px 4px;cursor:pointer;align-items:flex-start;border-radius:5px;font-size:13px}.ml label:hover{background:var(--tint)}.ml label[hidden]{display:none}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:12px;margin-bottom:6px}
+.k{background:var(--sf);border:1px solid var(--ln);border-radius:var(--radius);padding:14px 16px 14px 18px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.k::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--navy)}
+.k b{display:block;font:600 28px/1.1 var(--f-display);font-variant-numeric:tabular-nums;margin-bottom:6px}
+.k span{color:var(--mu2);font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase}
+.k.main{background:var(--navy);border-color:var(--navy);color:#fff}
+.k.main::before{background:var(--hi-b)}
+.k.main b{font-size:40px;color:#fff}
+.k.main span{color:#a9bdd8}
+
+/* Rate bars */
+.bar{height:7px;border-radius:4px;background:var(--grid);overflow:hidden;min-width:70px}.bar i{display:block;height:100%;background:var(--pr);border-radius:4px}
+.rate{display:flex;align-items:center;gap:8px;min-width:150px}.rate .bar{flex:1}
+.rate em{font-style:normal;width:50px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-family:var(--f-mono);font-size:12.5px}
+.rate:has(em.hi) .bar i{background:var(--hi-b)}.rate:has(em.md) .bar i{background:var(--md-b)}.rate:has(em.lo) .bar i{background:var(--lo-b)}
 .hi{color:var(--hi)}.md{color:var(--md)}.lo{color:var(--lo)}
-tr.det td{background:var(--tint);padding:0 10px 12px 28px}.det table{min-width:560px}.det th{cursor:default}
-.mu{color:var(--mu)}.tag{font-size:12px;color:var(--mu)}
-.ab{font:inherit;font-size:12.5px;color:var(--ac);background:transparent;border:1px solid var(--ac);border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap}.ab:hover{background:color-mix(in srgb,var(--ac) 12%,transparent)}
-dialog{background:var(--sf);color:var(--tx);border:1px solid var(--ln);border-radius:10px;padding:16px;width:min(760px,94vw);max-height:84vh}dialog::backdrop{background:rgba(0,0,0,.45)}
-.dh{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;margin-bottom:10px}.dh h2{margin:0}.dh div{display:flex;gap:6px}
-dialog .wrap{max-height:56vh;overflow:auto}dialog table{min-width:480px}dialog a{color:var(--ac)}
-.ch{display:grid;grid-template-columns:minmax(90px,210px) 1fr 112px;gap:10px;align-items:center;padding:3px 0;font-size:13px}.ch[data-i]:hover .ct{outline:1px solid var(--ac)}
-.ch .cl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ct{display:flex;height:16px;border-radius:3px;overflow:hidden}.ct .p{background:var(--pr)}.ct .a{background:var(--ab)}
-.cv{text-align:right;font-variant-numeric:tabular-nums}.cv small{color:var(--mu)}.lg{display:flex;gap:14px;font-size:12.5px;color:var(--mu);margin-bottom:8px}.lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
-@media(max-width:520px){.ch{grid-template-columns:84px 1fr 96px;font-size:12px}}
-.ms{position:relative}.ms summary{list-style:none;cursor:pointer;border:1px solid var(--ln);border-radius:6px;padding:6px 10px;background:var(--bg);min-width:200px}.ms summary::-webkit-details-marker{display:none}.ms summary::after{content:' ▾';color:var(--mu)}
-.mp{position:absolute;z-index:20;top:calc(100% + 4px);left:0;width:min(330px,86vw);background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
-.mp input[type=search]{width:100%;margin-bottom:8px}.mf{display:flex;gap:6px;margin-bottom:6px}.ml{max-height:240px;overflow:auto}.ml label{display:flex;gap:8px;padding:4px 2px;cursor:pointer;align-items:flex-start}.ml label[hidden]{display:none}
-.up.drag{outline:2px dashed var(--ac)}#up label{color:var(--mu)}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.slot{display:grid;grid-template-columns:96px 1fr 70px;gap:8px;align-items:center;padding:4px 0}
-@media(max-width:820px){.kpis{grid-template-columns:1fr 1fr}.k.main{grid-column:1/-1}.ab{font:inherit;font-size:12.5px;color:var(--ac);background:transparent;border:1px solid var(--ac);border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap}.ab:hover{background:color-mix(in srgb,var(--ac) 12%,transparent)}
-dialog{background:var(--sf);color:var(--tx);border:1px solid var(--ln);border-radius:10px;padding:16px;width:min(760px,94vw);max-height:84vh}dialog::backdrop{background:rgba(0,0,0,.45)}
-.dh{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;margin-bottom:10px}.dh h2{margin:0}.dh div{display:flex;gap:6px}
-dialog .wrap{max-height:56vh;overflow:auto}dialog table{min-width:480px}dialog a{color:var(--ac)}
-.two{grid-template-columns:1fr}}
-.sh{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}.sh h2{margin:0}.sh.dh{margin-bottom:0}.sbody{margin-top:12px}.sbody[hidden]{display:none}
-.tg::before{content:'▸ '}.tg[aria-expanded="true"]::before{content:'▾ '}#bc,#thc,#suc{max-height:560px;overflow:auto;padding-right:6px}
-html,body{background:#ffffff!important;color:#111827}
-</style><style>.home-link{display:inline-flex;align-items:center;gap:6px;margin:0 0 10px;padding:6px 12px;border-radius:999px;border:1px solid #d6dbe4;background:#fff;color:#1f2a44;font:600 13px/1.2 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;text-decoration:none;transition:background .15s,border-color .15s}.home-link:hover{background:#eef2ff;border-color:#2446d8;color:#2446d8}.home-link:focus-visible{outline:2px solid #2446d8;outline-offset:2px}</style></head><body><main>
-<a class="home-link" href="index.html" aria-label="Back to Home"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Home</a>
-<h1 id="ttl">Batch attendance report</h1>
-<p class="sub">Attendance rate = present ÷ attendance records (one record per student per class). Use the Centres, Batches, Teachers and Subjects filters (several can be selected) to narrow the whole report, and click a batch to see its classes. Use Absent list on any centre, batch or class to see who was absent and their mobile numbers.</p>
-<section class="panel" id="up"><h2>Generate report</h2><div class="tools"><input id="fi" type="file" accept=".xlsx,.xls,.csv" aria-label="Attendance report file"><label>From <input type="date" id="d1" aria-label="From date"></label><label>To <input type="date" id="d2" aria-label="To date"></label><button class="ab" id="dlast" type="button">Latest day</button><button class="ab" id="dall" type="button">Full range</button></div><p class="tag" id="st" style="margin:0">Choose the Batch Attendance Report (.xlsx or .csv) or drop it on this box. It is read in your browser and is not sent anywhere. Then pick a start and end date to build the report for that period.</p></section>
+
+/* Tables */
+.wrap{overflow-x:auto;border:1px solid var(--ln);border-radius:8px}
+table{width:100%;border-collapse:separate;border-spacing:0;min-width:640px;font-size:13px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--grid);vertical-align:middle}
+th{background:var(--navy-2);color:#fff;font-weight:600;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;cursor:pointer;user-select:none;border-bottom:0}
+th:hover{background:var(--navy)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+td.n{font-family:var(--f-mono);font-size:12.5px}
+tbody tr:nth-child(even) td{background:#fafbfd}
+tr.row{cursor:pointer}tr.row:hover td{background:var(--acs)}
+tr.sel td{background:#dbe7f7 !important}
+tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--ac)}
+tr.det > td{background:var(--tint) !important;padding:6px 12px 14px 28px}
+.det table{min-width:560px;background:var(--sf);border:1px solid var(--ln);border-radius:8px;overflow:hidden}
+.det th{cursor:default;background:#e9eef5;color:var(--mu);border-bottom:1px solid var(--ln)}
+.det th:hover{background:#e9eef5}
+
+/* Bar charts */
+.lg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--mu);margin-bottom:10px;align-items:center}
+.lg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.ch{display:grid;grid-template-columns:minmax(90px,230px) 1fr 120px;gap:12px;align-items:center;padding:4px 0;font-size:13px;border-bottom:1px dashed var(--grid)}
+.ch:last-child{border-bottom:0}
+.ch[data-i]:hover .ct{outline:2px solid var(--ac);outline-offset:1px}
+.ch .cl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--tx)}
+.ct{display:flex;height:16px;border-radius:3px;overflow:hidden;background:var(--grid)}.ct .p{background:var(--pr)}.ct .a{background:var(--ab)}
+.cv{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--f-mono);font-size:12.5px}.cv small{color:var(--mu2)}
+.slot{display:grid;grid-template-columns:110px 1fr 70px;gap:10px;align-items:center;padding:5px 0;font-size:13px;border-bottom:1px dashed var(--grid)}
+.slot span:first-child{font-family:var(--f-mono);font-size:12.5px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* Dialog */
+dialog{background:var(--sf);color:var(--tx);border:0;border-radius:12px;padding:0;width:min(820px,94vw);max-height:86vh;box-shadow:0 24px 60px rgba(15,42,74,.35);overflow:hidden}
+dialog::backdrop{background:rgba(15,42,74,.5)}
+dialog > .dh{background:var(--navy);color:#fff;padding:16px 20px;margin:0}
+dialog > .dh h2{color:#fff;margin:0}
+dialog > .dh .tag{color:#a9bdd8}
+dialog > .dh .ab{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.3)}
+dialog > .wrap{margin:16px 20px 20px;max-height:58vh;overflow:auto}
+dialog table{min-width:480px}dialog a{color:var(--ac);font-family:var(--f-mono);font-size:12.5px}
+.dh{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;margin-bottom:10px}.dh h2{margin:0}.dh > div{display:flex;gap:6px;align-items:center}
+
+footer.foot{max-width:1500px;margin:0 auto;padding:16px 32px calc(28px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--mu2);border-top:1px solid var(--ln)}
+.foot-dev{color:var(--mu)}.foot-dev b{color:var(--ink);font-weight:600}.foot-dev a{color:var(--ac);text-decoration:none;font-family:var(--f-mono)}.foot-dev a:hover{text-decoration:underline}.foot-dev .sep{margin:0 8px;color:var(--mu2)}
+
+@media(max-width:1000px){.kpis{grid-template-columns:1fr 1fr}.k.main{grid-column:1/-1}.two{grid-template-columns:1fr}}
+@media(max-width:640px){header.top{padding-left:16px;padding-right:16px}main{padding:16px}footer.foot{padding-left:16px;padding-right:16px}.meta > div{padding-right:14px;margin-right:14px}.ch{grid-template-columns:84px 1fr 100px;font-size:12px}.ms summary{min-width:0;max-width:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+@media print{
+  @page{size:A4 landscape;margin:10mm}
+  html,body{background:#fff}
+  header.top,.k.main,th,.bar i,.ct i,.k::before,.lg i{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .hactions,#up,#fp,.tg,.sh select,.ab,dialog{display:none!important}
+  .sbody[hidden]{display:block!important}
+  .panel,.k{box-shadow:none;break-inside:avoid}
+  #bc,#thc,#suc,.wrap{max-height:none!important;overflow:visible!important}
+}
+.notes{background:var(--tint);box-shadow:none;border-style:dashed;margin-top:8px}.notes h3{margin:0 0 6px;font:600 11px/1.2 var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}.notes p{margin:0;color:var(--mu);font-size:13px;max-width:110ch}
+</style></head><body class="empty">
+<header class="top">
+  <div class="mast">
+    <div class="brand">
+      <a class="brand-mark" href="index.html" title="Home" aria-label="Home">BA</a>
+      <div>
+        <div class="eyebrow">Academic Operations · MIS Report</div>
+        <h1>Batch Attendance Dashboard</h1>
+      </div>
+    </div>
+    <div class="hactions">
+      <a class="hbtn" href="index.html" title="Go to the home page (index.html)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 7.5 8 2.5l6 5M3.5 6.5V13.5h3.5v-4h2v4h3.5V6.5"/></svg>Home</a>
+      <button class="hbtn" id="printBtn" type="button" disabled title="Print or save as PDF"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 6V2h8v4M4 12H2.5V6.5h11V12H12M4.5 9.5h7V14h-7z"/></svg>Print / PDF</button>
+    </div>
+  </div>
+  <dl class="meta" id="meta"><div><dt>Status</dt><dd>No data loaded</dd></div></dl>
+</header>
+<main>
+<p class="sub" id="ttl" hidden></p>
+<section class="panel" id="up"><h2>Upload batch attendance report to generate the dashboard</h2><div class="tools"><input id="fi" type="file" accept=".xlsx,.xls,.csv" aria-label="Attendance report file"><label>From <input type="date" id="d1" aria-label="From date"></label><label>To <input type="date" id="d2" aria-label="To date"></label><button class="ab" id="dlast" type="button">Latest day</button><button class="ab" id="dall" type="button">Full range</button></div><p class="tag" id="st" style="margin:0">Choose the Batch Attendance Report (.xlsx or .csv) or drop it on this box. It is read in your browser and is not sent anywhere. Then pick a start and end date to build the report for that period.</p></section>
 <div id="dash" hidden>
 <section class="panel" id="fp"><div class="tools"><div class="ms" id="msc"></div><div class="ms" id="msb"></div><div class="ms" id="mst"></div><div class="ms" id="mss"></div><button class="ab" id="fclr" type="button">Clear filters</button><button class="ab" id="xall" type="button">Collapse all</button><button class="ab" id="eall" type="button">Expand all</button></div></section>
+<div class="sec-label"><span class="n">01</span>Summary</div>
 <section class="kpis" id="kpis"></section>
+<div class="sec-label"><span class="n">02</span>Centres &amp; batches</div>
 <section class="panel" data-tg data-open data-chart="cc"><div class="dh"><h2>Centre-wise attendance chart</h2><select id="cm" aria-label="Chart measure"><option value="rate">Attendance %</option><option value="count">Present vs absent count</option></select></div><div class="lg"><span><i style="background:var(--pr)"></i>Present</span><span><i style="background:var(--ab)"></i>Absent</span><span>Click a centre bar to filter the whole report to it</span></div><div id="cc"></div></section>
 <section class="panel" data-tg><h2>Centre-wise summary</h2><div class="wrap"><table id="ct"></table></div></section>
 <section class="panel" data-tg data-open data-chart="bc"><h2 id="bch">Batch-wise attendance chart</h2><div id="bc"></div></section>
 <section class="panel" data-tg><h2 id="bh">Batch-wise summary</h2>
 <div class="tools"><select id="co" aria-label="Course"></select><input id="q" type="search" placeholder="Search batch or teacher" aria-label="Search"></div>
 <div class="wrap"><table id="bt"></table></div></section>
+<div class="sec-label"><span class="n">03</span>Teachers</div>
 <section class="panel" data-tg data-open data-chart="thc"><h2>Teacher-wise attendance chart</h2><div class="lg"><span><i style="background:var(--pr)"></i>Present</span><span><i style="background:var(--ab)"></i>Absent</span><span>Follows the filters and the teacher chosen in the Teacher-wise attendance section; use Sort to change the order</span></div><div id="thc"></div></section>
 <section class="panel" data-tg><div class="dh"><h2>Teacher-wise attendance</h2><select id="tq" aria-label="Teacher"><option value="">All teachers</option></select></div><p class="tag" style="margin:0 0 8px">Overall attendance across all of a teacher's classes. Lowest first; click a column heading to sort.</p><div class="wrap"><table id="tt"></table></div></section>
 <section class="panel" data-tg><h2>Teacher-wise, batch-wise attendance</h2><p class="tag" style="margin:0 0 8px">One row for each teacher and batch pair.</p><div class="wrap"><table id="ttb"></table></div></section>
+<div class="sec-label"><span class="n">04</span>Subjects &amp; trends</div>
 <section class="panel" data-tg data-open data-chart="suc"><h2>Subject-wise attendance chart</h2><div class="lg"><span><i style="background:var(--pr)"></i>Present</span><span><i style="background:var(--ab)"></i>Absent</span><span>Follows the filters; use Sort to change the order</span></div><div id="suc"></div></section>
 <section class="panel" data-tg><h2>Subject-wise summary</h2><p class="tag" style="margin:0 0 8px">Overall attendance for each subject across the selected centres, batches and teachers.</p><div class="wrap"><table id="ts"></table></div></section>
 <section class="panel" data-tg data-open data-chart="tc" data-mode="trend" id="tp" hidden><h2>Day-wise attendance trend</h2><div id="tc"></div></section>
@@ -76,10 +214,12 @@ html,body{background:#ffffff!important;color:#111827}
 <section class="panel" data-tg data-chart="sl" data-mode="slot"><h2>Attendance by time slot</h2><div id="sl"></div></section>
 </div>
 </div>
+<section class="panel notes"><h3>How to read this report</h3><p>Attendance rate = present ÷ attendance records (one record per student per class). Use the Centres, Batches, Teachers and Subjects filters (several can be selected) to narrow the whole report, and click a batch to see its classes. Use Absent list on any centre, batch or class to see who was absent and their mobile numbers.</p></section>
 </main>
+<footer class="foot"><span id="footSrc">Batch Attendance Dashboard</span><div class="foot-dev">Developed by <b>Debasish Bhattacharyya</b><span class="sep">·</span>Contact: <a href="tel:+917044043297">70440 43297</a></div></footer>
 <dialog id="dg"><div class="dh"><div style="display:block"><h2 id="dt"></h2><span class="tag" id="ds"></span></div><div><button class="ab" id="dc">Copy list</button><button class="ab" id="dx">Close</button></div></div><div class="wrap"><table id="dtb"></table></div></dialog>
 <script>
-let D=[],T={p:0,n:0},DL='',ALL=[],MULTI=false;
+let D=[],T={p:0,n:0},DL='',ALL=[],MULTI=false,FN='';
 const $=i=>document.getElementById(i),pc=(p,n)=>n?p/n*100:0,cl=v=>v>=70?'hi':v>=50?'md':'lo';
 const rate=(p,n)=>{const v=pc(p,n);return `<div class="rate"><div class="bar"><i style="width:${v}%"></i></div><em class="${cl(v)}">${v.toFixed(1)}%</em></div>`};
 const sum=a=>a.reduce((x,r)=>({p:x.p+r.p,n:x.n+r.n}),{p:0,n:0});
@@ -168,7 +308,7 @@ const norm=s=>String(s??'').replace(/\s+/g,' ').trim();
 const tc=s=>s.toLowerCase().replace(/(^|[\s(-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
 const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 function nd(v){if(v instanceof Date&&!isNaN(v))return ymd(v);
- if(typeof v=='number')return new Date(Math.round((v-25569)*864e5)).toISOString().slice(0,10);
+ if(typeof v=='number')return new Date((Math.floor(v+1e-6)-25569)*864e5).toISOString().slice(0,10);
  const s=norm(v);let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0');
  m=s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})/);if(m)return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
  const d=new Date(s);return isNaN(d)?'':ymd(d)}
@@ -204,15 +344,15 @@ function refresh(){D=DR.filter(c=>(!SC.size||SC.has(c.c))&&(!SB.size||SB.has(c.b
 $('fclr').onclick=()=>{SC.clear();SB.clear();ST.clear();SS.clear();buildF();refresh()};
 document.addEventListener('click',e=>document.querySelectorAll('.ms details[open]').forEach(d=>{if(!d.parentElement.contains(e.target))d.open=false}));
 const sd=d=>new Date(d+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-function show(a,b){const lo=a<b?a:b,hi=a<b?b:a;DR=classes(ALL.filter(r=>r.d>=lo&&r.d<=hi));MULTI=lo!==hi;DL=!lo?'Uploaded report':MULTI?dl(lo)+' to '+dl(hi):dl(lo);$('ttl').textContent='Batch attendance, '+DL;document.title='Attendance dashboard · '+DL;buildF();refresh();$('dash').hidden=false;$('d1').value=lo;$('d2').value=hi}
+function show(a,b){const lo=a<b?a:b,hi=a<b?b:a;DR=classes(ALL.filter(r=>r.d>=lo&&r.d<=hi));MULTI=lo!==hi;DL=!lo?'Uploaded report':MULTI?dl(lo)+' to '+dl(hi):dl(lo);document.title='Batch Attendance Dashboard · '+DL;setMeta();buildF();refresh();$('dash').hidden=false;$('d1').value=lo;$('d2').value=hi}
 const rng=()=>{const ds=ALL.map(r=>r.d).filter(Boolean).sort();return[ds[0]||'',ds[ds.length-1]||'']};
 function loadRows(raw,from,to){ALL=parseRows(raw);SC.clear();SB.clear();ST.clear();SS.clear();const[mn,mx]=rng();['d1','d2'].forEach(i=>{$(i).min=mn;$(i).max=mx;$(i).disabled=!mn});const P=new URLSearchParams(location.search);show(from||P.get('from')||P.get('date')||mn,to||P.get('to')||P.get('date')||mx)}
-async function onFile(f){$('st').textContent='Reading '+f.name+' (large files can take several seconds)…';await new Promise(r=>setTimeout(r,30));
+async function onFile(f){FN=f.name;$('st').textContent='Reading '+f.name+' (large files can take several seconds)…';await new Promise(r=>setTimeout(r,30));
  try{if(typeof XLSX=='undefined')throw new Error('the spreadsheet reader did not load (cdnjs may be blocked)');
- const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:true});
+ const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:false});
  loadRows(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:'',raw:true}));
  $('st').textContent=f.name+' · '+ALL.length.toLocaleString()+' attendance records · '+new Set(ALL.map(r=>r.d)).size+' date(s) found'}
- catch(e){$('st').textContent='Could not read this file: '+e.message;$('dash').hidden=true}}
+ catch(e){$('st').textContent='Could not read this file: '+e.message;$('dash').hidden=true;document.body.classList.add('empty');$('printBtn').disabled=true;$('meta').innerHTML='<div><dt>Status</dt><dd>No data loaded</dd></div>'}}
 $('d1').onchange=$('d2').onchange=()=>{if($('d1').value&&$('d2').value)show($('d1').value,$('d2').value)};
 $('dlast').onclick=()=>{const r=rng();if(ALL.length)show(r[1],r[1])};$('dall').onclick=()=>{const r=rng();if(ALL.length)show(r[0],r[1])};
 $('fi').onchange=e=>e.target.files[0]&&onFile(e.target.files[0]);
@@ -229,4 +369,12 @@ const tg=(b,open)=>{$(b.getAttribute('aria-controls')).hidden=!open;b.setAttribu
 document.querySelectorAll('.tg').forEach(b=>b.onclick=()=>tg(b,$(b.getAttribute('aria-controls')).hidden));
 $('xall').onclick=()=>document.querySelectorAll('.tg').forEach(b=>tg(b,false));$('eall').onclick=()=>document.querySelectorAll('.tg').forEach(b=>tg(b,true));
 window.loadAttendanceRows=loadRows;
+function setMeta(){
+ const now=new Date(),p=n=>String(n).padStart(2,'0'),gen=p(now.getDate())+' '+now.toLocaleString('en-GB',{month:'short'})+' '+now.getFullYear()+', '+p(now.getHours())+':'+p(now.getMinutes());
+ const recs=DR.reduce((s,c)=>s+c.n,0);
+ $('meta').innerHTML=`<div><dt>Reporting period</dt><dd>${esc(DL)}</dd></div><div><dt>Source file</dt><dd>${esc(FN||'Uploaded report')}</dd></div><div><dt>Coverage</dt><dd>${DR.length.toLocaleString('en-IN')} classes · ${recs.toLocaleString('en-IN')} records · ${new Set(DR.map(c=>c.c)).size} centres</dd></div><div><dt>Generated</dt><dd>${gen}</dd></div>`;
+ $('footSrc').textContent='Source: '+(FN||'Uploaded report')+' · '+DL;
+ document.body.classList.remove('empty');$('printBtn').disabled=false;
+}
+$('printBtn').onclick=()=>{document.querySelectorAll('.tg').forEach(b=>tg(b,true));window.print()};
 </script></body></html>
