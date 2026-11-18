@@ -15,6 +15,7 @@
     --brand:#2446d8; --brand-2:#4f6bff; --brand-soft:#eef2ff;
     --teal:#0e9f8e; --teal-soft:#e6f7f4;
     --violet:#7c3aed; --violet-soft:#f3edff;
+    --amber:#d97706; --amber-soft:#fff4e5;
     --hair:#e8ebf2;
     background:#ffffff; color:var(--ink);
     font-family:"Plus Jakarta Sans",Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -82,7 +83,7 @@
   .section-head h2{font-size:1.75rem;letter-spacing:-.025em;margin:8px 0 0;color:var(--ink);font-weight:800}
   .section-head p{margin:0;color:var(--ink-3);max-width:380px;font-size:.95rem}
 
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px}
   .card{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid var(--hair);border-radius:20px;overflow:hidden;text-decoration:none;color:inherit;
     box-shadow:0 1px 2px rgba(11,19,36,.04);transition:transform .2s,box-shadow .2s,border-color .2s}
   .card:hover{transform:translateY(-4px);border-color:#d6dcf0;box-shadow:0 24px 48px -20px rgba(11,19,36,.22)}
@@ -90,24 +91,27 @@
   .card.att .card-visual{background:linear-gradient(135deg,#eef2ff 0%,#f7f8ff 100%)}
   .card.hw .card-visual{background:linear-gradient(135deg,#e9f8f5 0%,#f6fbfa 100%)}
   .card.cer .card-visual{background:linear-gradient(135deg,#f3edff 0%,#faf8ff 100%)}
+  .card.m100 .card-visual{background:linear-gradient(135deg,#fff1df 0%,#fffaf3 100%)}
   .card-visual .vbar{flex:1;border-radius:8px 8px 0 0}
   .card.att .vbar{background:linear-gradient(180deg,#6f86ff,#2446d8);opacity:.9}
   .card.hw .vbar{background:linear-gradient(180deg,#38c3b0,#0e9f8e);opacity:.9}
   .card.cer .vbar{background:linear-gradient(180deg,#a78bfa,#7c3aed);opacity:.9}
+  .card.m100 .vbar{background:linear-gradient(180deg,#fbbf24,#d97706);opacity:.9}
   .card-visual .vbar.ghost{opacity:.25}
   .card-icon{position:absolute;top:20px;left:24px;z-index:1;display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:#fff;box-shadow:0 6px 16px -6px rgba(11,19,36,.2)}
   .card.att .card-icon{color:var(--brand)}
   .card.hw .card-icon{color:var(--teal)}
   .card.cer .card-icon{color:var(--violet)}
+  .card.m100 .card-icon{color:var(--amber)}
   .card-body{padding:24px 26px 26px;display:flex;flex-direction:column;gap:10px;flex:1}
   .card-body h3{margin:0;font-size:1.22rem;letter-spacing:-.02em;font-weight:800;color:var(--ink)}
   .card-body p{margin:0;color:var(--ink-3);font-size:.94rem;line-height:1.6}
   .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
   .tags span{font-size:.75rem;font-weight:600;color:var(--ink-2);background:#f4f6fa;border:1px solid var(--hair);padding:4px 10px;border-radius:999px}
   .card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:18px;border-top:1px solid var(--hair);font-weight:700;font-size:.9rem}
-  .card.att .card-foot{color:var(--brand)} .card.hw .card-foot{color:var(--teal)} .card.cer .card-foot{color:var(--violet)}
+  .card.att .card-foot{color:var(--brand)} .card.hw .card-foot{color:var(--teal)} .card.cer .card-foot{color:var(--violet)} .card.m100 .card-foot{color:var(--amber)}
   .card-foot .arrow{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;transition:transform .2s,background .2s}
-  .card.att .arrow{background:var(--brand-soft)} .card.hw .arrow{background:var(--teal-soft)} .card.cer .arrow{background:var(--violet-soft)}
+  .card.att .arrow{background:var(--brand-soft)} .card.hw .arrow{background:var(--teal-soft)} .card.cer .arrow{background:var(--violet-soft)} .card.m100 .arrow{background:var(--amber-soft)}
   .card:hover .arrow{transform:translateX(4px)}
 
   /* Features strip */
@@ -158,6 +162,7 @@
       <a href="Batch_attendance_dashboard.html">Class Attendance</a>
       <a href="HW_Assigned_Submission.html">Homework</a>
       <a href="Class_Execution_Report.html">Class Execution</a>
+      <a href="Mission100_Assigned_Participation.html">M-100 Participation</a>
     </nav>
   </div>
 </header>
@@ -167,12 +172,13 @@
     <div>
       <span class="pill"><b>Insights</b> Academic performance at a glance</span>
       <h1>Every batch, every assignment &mdash; <span>one clear view.</span></h1>
-      <p class="lead">Monitor attendance, homework completion and class execution across batches, spot gaps early, and support every learner with data you can act on.</p>
+      <p class="lead">Monitor attendance, homework completion, class execution and Mission 100 participation across batches, spot gaps early, and support every learner with data you can act on.</p>
       <div class="actions">
         <a class="btn btn-primary" href="Batch_attendance_dashboard.html">Class Attendance<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
         <a class="btn btn-ghost" href="HW_Assigned_Submission.html">Homework Assigned vs Submission</a>
         <a class="btn btn-ghost" href="Class_Execution_Report.html">Class Execution</a>
+        <a class="btn btn-ghost" href="Mission100_Assigned_Participation.html">M-100 Participation</a>
       </div>
     </div>
 
@@ -257,6 +263,23 @@
         </div>
       </div>
     </a>
+
+    <a class="card m100" href="Mission100_Assigned_Participation.html">
+      <div class="card-visual" aria-hidden="true">
+        <span class="card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>
+        </span>
+        <span class="vbar" style="height:78%"></span><span class="vbar ghost" style="height:50%"></span><span class="vbar" style="height:66%"></span><span class="vbar" style="height:84%"></span><span class="vbar ghost" style="height:44%"></span><span class="vbar" style="height:72%"></span><span class="vbar ghost" style="height:58%"></span>
+      </div>
+      <div class="card-body">
+        <h3>M-100 Participation</h3>
+        <p>Mission 100 students assigned versus those who took part, broken down by centre, batch, attendance and test status.</p>
+        <div class="tags"><span>Assigned</span><span>Participated</span><span>Status-wise</span></div>
+        <div class="card-foot">Open dashboard
+          <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </div>
+    </a>
   </div>
 </main>
 
@@ -273,7 +296,7 @@
   <div class="foot">
     <span>&copy; <span id="yr"></span> Academic Dashboard</span>
     <span class="dev">Developed by <b>Debasish Bhattacharyya</b><span class="sep">·</span>Contact: <a href="tel:+917044043297">70440 43297</a></span>
-    <span><a href="Batch_attendance_dashboard.html">Attendance</a><a href="HW_Assigned_Submission.html">Homework</a><a href="Class_Execution_Report.html">Class Execution</a></span>
+    <span><a href="Batch_attendance_dashboard.html">Attendance</a><a href="HW_Assigned_Submission.html">Homework</a><a href="Class_Execution_Report.html">Class Execution</a><a href="Mission100_Assigned_Participation.html">M-100 Participation</a></span>
   </div>
 </footer>
 <script>document.getElementById('yr').textContent=new Date().getFullYear();</script>
