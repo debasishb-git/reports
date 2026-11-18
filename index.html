@@ -122,6 +122,11 @@
   .home .foot{max-width:1180px;margin:0 auto;padding:22px 32px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--ink-3);font-size:.84rem}
   .home .foot a{color:var(--ink-2);text-decoration:none;margin-left:18px;font-weight:600}
   .home .foot a:hover{color:var(--brand)}
+  .home .foot .dev{color:var(--ink-3)}
+  .home .foot .dev b{color:var(--ink);font-weight:700}
+  .home .foot .dev .sep{margin:0 8px}
+  .home .foot .dev a{margin-left:4px;color:var(--brand);font-variant-numeric:tabular-nums}
+  .home .foot .dev a:hover{text-decoration:underline}
 
   @media (max-width:900px){
     .home-hero{grid-template-columns:1fr;padding:56px 24px 56px;gap:40px}
@@ -267,6 +272,7 @@
 <footer>
   <div class="foot">
     <span>&copy; <span id="yr"></span> Academic Dashboard</span>
+    <span class="dev">Developed by <b>Debasish Bhattacharyya</b><span class="sep">·</span>Contact: <a href="tel:+917044043297">70440 43297</a></span>
     <span><a href="Batch_attendance_dashboard.html">Attendance</a><a href="HW_Assigned_Submission.html">Homework</a><a href="Class_Execution_Report.html">Class Execution</a></span>
   </div>
 </footer>
