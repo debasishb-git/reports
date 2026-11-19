@@ -197,6 +197,13 @@ footer.foot{max-width:1500px;margin:0 auto;padding:16px 32px 32px;display:flex;j
   .scroll,.gr{max-height:none!important;overflow:visible!important}
   main{padding:12px 0}
 }
+
+/* After the first report: keep only the date bar of the upload panel */
+#up .uplbl{display:none}
+body.loaded #up .upintro,body.loaded #up input[type=file],body.loaded #lmsg{display:none!important}
+body.loaded section#up{padding:10px 16px}
+body.loaded #up .tools{margin:0}
+body.loaded #up .uplbl{display:inline-flex;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);margin-right:6px}
 </style></head><body class="nodata">
 <header class="top">
   <div class="mast">
@@ -209,6 +216,7 @@ footer.foot{max-width:1500px;margin:0 auto;padding:16px 32px 32px;display:flex;j
     </div>
     <div class="actions">
       <a class="btn" href="index.html" title="Back to the Academic Dashboard home page"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 7.5 8 2.5l6 5M3.5 6.5V13.5h3.5v-4h2v4h3.5V6.5"/></svg>Home</a>
+      <button class="btn primary" id="upl" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 11V2M4.5 5.5 8 2l3.5 3.5M2.5 11v2.5h11V11"/></svg>Upload raw Excel</button>
       <button class="btn" id="prt" type="button" disabled title="Print or save as PDF"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 6V2h8v4M4 12H2.5V6.5h11V12H12M4.5 9.5h7V14h-7z"/></svg>Print / PDF</button>
     </div>
   </div>
@@ -218,7 +226,7 @@ footer.foot{max-width:1500px;margin:0 auto;padding:16px 32px 32px;display:flex;j
 </header>
 
 <main>
-  <section class="panel" id="up">Upload HW Assigned vs Submission report of <b>RICE Education Report</b> portal to generate the dashboard<div class="tools"><input id="fi" type="file" accept=".xlsx,.xls,.csv" aria-label="HW Assigned vs Submission report file"><label>From <input type="date" id="df" aria-label="Due date from" disabled></label><label>To <input type="date" id="dt" aria-label="Due date to" disabled></label><button class="ab" id="dlast" type="button" disabled>Latest day</button><button class="ab" id="dall" type="button" disabled>Full range</button></div><p id="lmsg">Click on Choose File to select the report (.xlsx, .xls or .csv) or drop it on this box. Later on select the From and To dates to build the report for that period.</p></section>
+  <section class="panel" id="up"><span class="upintro">Upload HW Assigned vs Submission report of <b>RICE Education Report</b> portal to generate the dashboard</span><div class="tools"><span class="uplbl">Due dates</span><input id="fi" type="file" accept=".xlsx,.xls,.csv" aria-label="HW Assigned vs Submission report file"><label>From <input type="date" id="df" aria-label="Due date from" disabled></label><label>To <input type="date" id="dt" aria-label="Due date to" disabled></label><button class="ab" id="dlast" type="button" disabled>Latest day</button><button class="ab" id="dall" type="button" disabled>Full range</button></div><p id="lmsg">Click on Choose File to select the report (.xlsx, .xls or .csv) or drop it on this box. Later on select the From and To dates to build the report for that period.</p></section>
 
   <div id="app" style="display:none">
     <section class="filters">
@@ -416,10 +424,11 @@ function setMeta(name,st){const now=new Date(),z=n=>String(n).padStart(2,'0'),M=
 function handleFile(f){if(!f)return;const m=$('lmsg');m.className='';m.textContent='Reading '+f.name+' (large files can take several seconds)…';
  f.arrayBuffer().then(b=>setTimeout(()=>{try{const st=loadBuffer(new Uint8Array(b),f.name);
   m.textContent=f.name+' · '+nf(st.rows)+' HW records · '+D.length+' due date(s) found · '+st.centres+' centres, '+st.batches+' batches, '+st.subjects+' subjects, '+st.teachers+' teachers';
-  ['df','dt','dlast','dall'].forEach(id=>$(id).disabled=false);document.body.classList.remove('nodata');$('prt').disabled=false;setMeta(f.name,st);toast('Loaded '+nf(st.rows)+' rows from '+f.name)}
-  catch(e){m.className='err';m.textContent='Could not read this file: '+e.message;toast('Could not read the file')}},30))
- .catch(e=>{m.className='err';m.textContent='Could not read this file: '+e.message})}
+  ['df','dt','dlast','dall'].forEach(id=>$(id).disabled=false);document.body.classList.remove('nodata');document.body.classList.add('loaded');$('prt').disabled=false;setMeta(f.name,st);toast('Loaded '+nf(st.rows)+' rows from '+f.name)}
+  catch(e){m.className='err';m.textContent='Could not read this file: '+e.message;document.body.classList.remove('loaded');toast('Could not read the file')}},30))
+ .catch(e=>{m.className='err';m.textContent='Could not read this file: '+e.message;document.body.classList.remove('loaded')})}
 $('fi').onchange=e=>e.target.files[0]&&handleFile(e.target.files[0]);
+$('upl').onclick=()=>{$('fi').value='';$('fi').click()};
 $('prt').onclick=()=>window.print();
 $('dlast').onclick=()=>{if(!D.length)return;$('df').value=$('dt').value=D[D.length-1];render()};
 $('dall').onclick=()=>{if(!D.length)return;setDates();render()};

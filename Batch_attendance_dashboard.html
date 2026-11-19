@@ -171,6 +171,14 @@ footer.foot{max-width:1500px;margin:0 auto;padding:16px 32px calc(28px + env(saf
   #bc,#thc,#suc,.wrap{max-height:none!important;overflow:visible!important}
 }
 .notes{background:var(--tint);box-shadow:none;border-style:dashed;margin-top:8px}.notes h3{margin:0 0 6px;font:600 11px/1.2 var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}.notes p{margin:0;color:var(--mu);font-size:13px;max-width:110ch}
+.hbtn.primary{background:#fff;border-color:#fff;color:var(--navy)}
+.hbtn.primary:hover{background:#e8eef7}
+/* After the first report: keep only the date bar of the upload panel */
+#up .uplbl{display:none}
+body.loaded #up .upintro,body.loaded #up input[type=file],body.loaded #st{display:none!important}
+body.loaded #up{padding:10px 16px}
+body.loaded #up .tools{margin:0}
+body.loaded #up .uplbl{display:inline-flex;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);margin-right:6px}
 </style></head><body class="empty">
 <header class="top">
   <div class="mast">
@@ -183,6 +191,7 @@ footer.foot{max-width:1500px;margin:0 auto;padding:16px 32px calc(28px + env(saf
     </div>
     <div class="hactions">
       <a class="hbtn" href="index.html" title="Go to the home page (index.html)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 7.5 8 2.5l6 5M3.5 6.5V13.5h3.5v-4h2v4h3.5V6.5"/></svg>Home</a>
+      <button class="hbtn primary" id="upl" type="button" title="Upload a new report file"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 11V2M4.5 5.5 8 2l3.5 3.5M2.5 11v2.5h11V11"/></svg>Upload raw Excel</button>
       <button class="hbtn" id="printBtn" type="button" disabled title="Print or save as PDF"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 6V2h8v4M4 12H2.5V6.5h11V12H12M4.5 9.5h7V14h-7z"/></svg>Print / PDF</button>
     </div>
   </div>
@@ -190,7 +199,7 @@ footer.foot{max-width:1500px;margin:0 auto;padding:16px 32px calc(28px + env(saf
 </header>
 <main>
 <p class="sub" id="ttl" hidden></p>
-<section class="panel" id="up">Upload Student Attendance report of <B>RICE Education Report</B> portal to generate the dashboard<div class="tools"><input id="fi" type="file" accept=".xlsx,.xls,.csv" aria-label="Attendance report file"><label>From <input type="date" id="d1" aria-label="From date"></label><label>To <input type="date" id="d2" aria-label="To date"></label><button class="ab" id="dlast" type="button">Latest day</button><button class="ab" id="dall" type="button">Full range</button></div><p class="tag" id="st" style="margin:0">Click on Choose File to select the report (.xlsx or .csv) or drop it on this box. Later on select the From and To dates to build the report for that period.</p></section>
+<section class="panel" id="up"><span class="upintro">Upload Student Attendance report of <B>RICE Education Report</B> portal to generate the dashboard</span><div class="tools"><span class="uplbl">Report period</span><input id="fi" type="file" accept=".xlsx,.xls,.csv" aria-label="Attendance report file"><label>From <input type="date" id="d1" aria-label="From date"></label><label>To <input type="date" id="d2" aria-label="To date"></label><button class="ab" id="dlast" type="button">Latest day</button><button class="ab" id="dall" type="button">Full range</button></div><p class="tag" id="st" style="margin:0">Click on Choose File to select the report (.xlsx or .csv) or drop it on this box. Later on select the From and To dates to build the report for that period.</p></section>
 <div id="dash" hidden>
 <section class="panel" id="fp"><div class="tools"><div class="ms" id="msc"></div><div class="ms" id="msb"></div><div class="ms" id="mst"></div><div class="ms" id="mss"></div><button class="ab" id="fclr" type="button">Clear filters</button><button class="ab" id="xall" type="button">Collapse all</button><button class="ab" id="eall" type="button">Expand all</button></div></section>
 <div class="sec-label"><span class="n">01</span>Summary</div>
@@ -350,12 +359,13 @@ function loadRows(raw,from,to){ALL=parseRows(raw);SC.clear();SB.clear();ST.clear
 async function onFile(f){FN=f.name;$('st').textContent='Reading '+f.name+' (large files can take several seconds)…';await new Promise(r=>setTimeout(r,30));
  try{if(typeof XLSX=='undefined')throw new Error('the spreadsheet reader did not load (cdnjs may be blocked)');
  const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:false});
- loadRows(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:'',raw:true}));
+ loadRows(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:'',raw:true}));document.body.classList.add('loaded');
  $('st').textContent=f.name+' · '+ALL.length.toLocaleString()+' attendance records · '+new Set(ALL.map(r=>r.d)).size+' date(s) found'}
- catch(e){$('st').textContent='Could not read this file: '+e.message;$('dash').hidden=true;document.body.classList.add('empty');$('printBtn').disabled=true;$('meta').innerHTML='<div><dt>Status</dt><dd>No data loaded</dd></div>'}}
+ catch(e){document.body.classList.remove('loaded');$('st').textContent='Could not read this file: '+e.message;$('dash').hidden=true;document.body.classList.add('empty');$('printBtn').disabled=true;$('meta').innerHTML='<div><dt>Status</dt><dd>No data loaded</dd></div>'}}
 $('d1').onchange=$('d2').onchange=()=>{if($('d1').value&&$('d2').value)show($('d1').value,$('d2').value)};
 $('dlast').onclick=()=>{const r=rng();if(ALL.length)show(r[1],r[1])};$('dall').onclick=()=>{const r=rng();if(ALL.length)show(r[0],r[1])};
 $('fi').onchange=e=>e.target.files[0]&&onFile(e.target.files[0]);
+$('upl').onclick=()=>{$('fi').value='';$('fi').click()};
 const up=$('up');['dragenter','dragover'].forEach(v=>up.addEventListener(v,e=>{e.preventDefault();up.classList.add('drag')}));
 ['dragleave','drop'].forEach(v=>up.addEventListener(v,e=>{e.preventDefault();up.classList.remove('drag')}));
 up.addEventListener('drop',e=>e.dataTransfer.files[0]&&onFile(e.dataTransfer.files[0]));
